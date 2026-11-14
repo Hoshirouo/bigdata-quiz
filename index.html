@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#0f172a">
+<title>Big Data Quiz</title>
+<style>
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#273449;--txt:#e2e8f0;--mut:#94a3b8;
+  --acc:#38bdf8;--ok:#22c55e;--bad:#ef4444;--warn:#f59e0b;--pur:#a78bfa;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.45}
+.wrap{max-width:640px;margin:0 auto;padding:16px 16px 90px}
+h1{font-size:1.5rem;margin:.2rem 0}
+h2{font-size:1.15rem;margin:.4rem 0}
+.mut{color:var(--mut)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.pill{background:var(--card);padding:6px 12px;border-radius:999px;font-weight:700;font-size:.9rem;white-space:nowrap}
+.card{background:var(--card);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 4px 16px #0005}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;margin:10px 0;font-size:1.05rem;font-weight:700;color:var(--txt);background:var(--card2);text-align:left;cursor:pointer;transition:transform .08s}
+.btn:active{transform:scale(.98)}
+.btn.main{background:linear-gradient(135deg,#0ea5e9,#6366f1);text-align:center}
+.btn.grn{background:#166534;text-align:center}
+.btn.red{background:#7f1d1d;text-align:center}
+.btn.ok{background:var(--ok);color:#052e16}
+.btn.bad{background:var(--bad)}
+.btn.dim{opacity:.45}
+.row{display:flex;gap:10px}.row .btn{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chip{border:2px solid var(--card2);background:var(--card);color:var(--txt);border-radius:999px;padding:8px 12px;font-size:.9rem;cursor:pointer}
+.chip.on{border-color:var(--acc);background:#0c4a6e}
+.menu-btn{display:flex;align-items:center;gap:14px}
+.menu-btn .ic{font-size:1.8rem}
+.menu-btn small{display:block;font-weight:400;color:var(--mut);font-size:.85rem}
+.q{font-size:1.2rem;font-weight:700;margin:6px 0 4px}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--acc);background:#0c4a6e;padding:3px 8px;border-radius:6px}
+.exp{border-left:4px solid var(--acc);background:#0b2236;padding:12px;border-radius:10px;margin-top:10px;animation:fade .25s}
+.bar{height:8px;background:var(--card2);border-radius:99px;overflow:hidden;margin:6px 0 2px}
+.bar>div{height:100%;background:linear-gradient(90deg,#22d3ee,#a78bfa);transition:width .3s}
+.flip{min-height:240px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;text-align:center}
+.flip .ans{text-align:left;animation:fade .25s}
+.big{font-size:3rem;text-align:center;margin:6px 0}
+.res{font-size:2.4rem;font-weight:800;text-align:center}
+.combo{color:var(--warn);font-weight:800}
+.pop{animation:pop .35s}
+.shake{animation:shake .35s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+@keyframes pop{50%{transform:scale(1.04)}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+td,th{border-bottom:1px solid var(--card2);padding:7px 4px;text-align:left;vertical-align:top}
+th{color:var(--acc)}
+ul{padding-left:20px;margin:6px 0}li{margin:4px 0}
+b.k{color:var(--acc)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#0b1222ee;backdrop-filter:blur(6px);display:flex;justify-content:space-around;padding:8px 0 calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--card2)}
+.nav button{background:none;border:0;color:var(--mut);font-size:.75rem;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 10px}
+.nav button span{font-size:1.4rem}
+.nav button.on{color:var(--acc)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<nav class="nav">
+  <button data-go="home"><span>🏠</span>Inicio</button>
+  <button data-go="study"><span>📖</span>Repaso</button>
+  <button data-go="quiz"><span>🎮</span>Quiz</button>
+  <button data-go="cards"><span>🃏</span>Tarjetas</button>
+</nav>
+<script>
+/* ================== CONTENIDO ================== */
+const TOPICS = {
+  bd:   {n:"¿Qué es Big Data?", i:"🌐"},
+  v5:   {n:"Las 5 V", i:"5️⃣"},
+  lk:   {n:"Lambda vs Kappa", i:"λ"},
+  hs:   {n:"Hadoop vs Spark", i:"⚡"},
+  hdfs: {n:"HDFS, Cluster, MapReduce, Streaming", i:"🗄️"},
+  aws:  {n:"AWS · EMR", i:"🟧"},
+  az:   {n:"Azure · HDInsight", i:"🟦"},
+  gcp:  {n:"GCP · Dataproc", i:"🟩"}
+};
+
+const STUDY = {
+bd:`<p><b class="k">Big Data</b> = conjuntos de datos tan <b>grandes, rápidos y variados</b> que las herramientas tradicionales (una BD relacional en un solo servidor) <b>no pueden capturarlos, almacenarlos, procesarlos y analizarlos</b> en un tiempo razonable.</p>
+<p>Se resuelve con <b>procesamiento distribuido</b>: muchas máquinas baratas (commodity) trabajando en paralelo en un <b>cluster</b>, escalando <b>horizontalmente</b> (agregar más nodos) en vez de verticalmente (máquina más potente).</p>
+<p><b>Tipos de datos:</b></p><ul>
+<li><b>Estructurados:</b> tablas SQL, filas y columnas.</li>
+<li><b>Semiestructurados:</b> JSON, XML, logs, CSV.</li>
+<li><b>No estructurados:</b> texto libre, imágenes, video, audio, redes sociales.</li></ul>
+<p><b>Objetivo:</b> extraer <b>valor</b> (decisiones, patrones, predicciones).</p>`,
+v5:`<table><tr><th>V</th><th>Qué significa</th></tr>
+<tr><td><b>Volumen</b></td><td>Cantidad enorme de datos (TB, PB, ZB).</td></tr>
+<tr><td><b>Velocidad</b></td><td>Rapidez con la que se generan y deben procesarse (tiempo real, streaming).</td></tr>
+<tr><td><b>Variedad</b></td><td>Distintos tipos y formatos: estructurados, semi y no estructurados.</td></tr>
+<tr><td><b>Veracidad</b></td><td>Calidad, confiabilidad y exactitud de los datos (ruido, sesgos, datos incompletos).</td></tr>
+<tr><td><b>Valor</b></td><td>Utilidad para el negocio: convertir datos en beneficio/decisiones.</td></tr></table>
+<p class="mut">Truco: <b>"VoVeVa VeVa"</b> → Volumen, Velocidad, Variedad, Veracidad, Valor. Originalmente eran 3V (Volumen, Velocidad, Variedad – Doug Laney, 2001).</p>`,
+lk:`<p><b class="k">Arquitectura Lambda</b> (Nathan Marz) – <b>2 caminos</b> de ingesta/procesamiento:</p><ul>
+<li><b>Batch layer:</b> guarda todos los datos históricos (inmutables) y recalcula vistas exactas. Lento pero preciso.</li>
+<li><b>Speed layer:</b> procesa en tiempo real lo más reciente. Rápido, aproximado.</li>
+<li><b>Serving layer:</b> une ambos resultados para responder consultas.</li></ul>
+<p>❌ Desventaja: <b>dos códigos/pipelines</b> que mantener (duplicación y complejidad).</p>
+<p><b class="k">Arquitectura Kappa</b> (Jay Kreps, 2014) – <b>quita la capa batch</b>:</p><ul>
+<li>Todo es <b>streaming en tiempo real</b>, un solo pipeline.</li>
+<li>Los datos se guardan en un <b>log inmutable</b> (ej. <b>Kafka</b>); si hay que reprocesar, se <b>re-lee (replay)</b> el stream.</li>
+<li>✅ Más simple: un solo código. ❌ Reprocesar históricos enormes puede ser costoso.</li></ul>
+<table><tr><th></th><th>Lambda</th><th>Kappa</th></tr>
+<tr><td>Capas</td><td>Batch + Speed + Serving</td><td>Solo Streaming + Serving</td></tr>
+<tr><td>Código</td><td>Dos pipelines</td><td>Uno</td></tr>
+<tr><td>Uso</td><td>Necesitas histórico exacto + tiempo real</td><td>Todo es eventos en tiempo real</td></tr></table>`,
+hs:`<p><b class="k">Hadoop (MapReduce)</b> procesa en <b>DISCO</b>: entre cada paso escribe los resultados intermedios en HDFS → muchas lecturas/escrituras → <b>más lento</b>.</p>
+<p><b class="k">Spark</b> procesa en <b>MEMORIA RAM</b> (RDD / DataFrames) → hasta <b>100× más rápido</b> en memoria y ~10× en disco.</p>
+<table><tr><th></th><th>Hadoop MapReduce</th><th>Spark</th></tr>
+<tr><td>Procesa en</td><td>Disco</td><td>RAM</td></tr>
+<tr><td>Velocidad</td><td>Más lento</td><td>Más rápido</td></tr>
+<tr><td>Tipo</td><td>Solo batch</td><td>Batch, streaming, SQL, ML (MLlib), grafos (GraphX)</td></tr>
+<tr><td>Costo</td><td>Más barato (disco)</td><td>Necesita más RAM</td></tr>
+<tr><td>Ejecución</td><td>Map → Reduce rígido</td><td>DAG + evaluación perezosa (lazy)</td></tr></table>
+<p><b>Ecosistema Hadoop:</b> <b>HDFS</b> (almacenamiento), <b>YARN</b> (gestor de recursos), <b>MapReduce</b> (procesamiento), Hadoop Common.</p>
+<p class="mut">Ojo: Spark NO reemplaza a todo Hadoop; reemplaza a MapReduce. Spark puede correr sobre YARN y leer de HDFS.</p>`,
+hdfs:`<p><b class="k">HDFS</b> = Hadoop Distributed File System.</p>
+<p><b>¿Por qué es distribuido?</b> Divide cada archivo en <b>bloques</b> (128 MB por defecto) y los reparte entre <b>muchos nodos</b> del cluster, con <b>réplicas</b> (factor 3 por defecto) → tolerancia a fallos y lectura en paralelo.</p><ul>
+<li><b>NameNode</b> (maestro): guarda los <b>metadatos</b> (qué bloque está en qué nodo).</li>
+<li><b>DataNodes</b> (esclavos/trabajadores): guardan los bloques reales.</li>
+<li>Principio "<b>write once, read many</b>" y <b>data locality</b> (llevar el cómputo hacia el dato).</li></ul>
+<p><b class="k">Cluster</b>: conjunto de computadoras (<b>nodos</b>) conectadas que trabajan <b>como un solo sistema</b>. Hay nodo maestro y nodos trabajadores. Escala horizontal.</p>
+<p><b class="k">MapReduce</b>: modelo de programación en 3 fases:</p><ul>
+<li><b>Map:</b> transforma la entrada en pares <b>(clave, valor)</b>.</li>
+<li><b>Shuffle & Sort:</b> agrupa los valores por clave.</li>
+<li><b>Reduce:</b> agrega/resume cada grupo.</li></ul>
+<p class="mut">Ejemplo conteo de palabras: Map → (hola,1),(mundo,1),(hola,1) · Shuffle → hola:[1,1] · Reduce → (hola,2).</p>
+<p><b class="k">Spark Streaming</b>: módulo de Spark para procesar <b>flujos de datos en tiempo real</b> dividiéndolos en <b>micro-batches</b> (DStreams). La versión moderna es <b>Structured Streaming</b> (sobre DataFrames). Fuentes: Kafka, Kinesis, sockets, archivos.</p>`,
+aws:`<p><b class="k">Amazon EMR</b> (Elastic MapReduce): servicio <b>administrado</b> de AWS para crear clusters de <b>Hadoop, Spark, Hive, HBase, Presto, Flink</b> sin instalar nada.</p><ul>
+<li>Corre sobre instancias <b>EC2</b> (o EKS / Serverless).</li>
+<li>Almacena datos en <b>S3</b> (EMRFS) o HDFS.</li>
+<li>Nodos: <b>Master</b> (primary), <b>Core</b> (procesan + HDFS), <b>Task</b> (solo procesan).</li>
+<li>Pago por uso, autoescalado, instancias <b>Spot</b> para ahorrar.</li></ul>
+<p class="mut">Otros de AWS: S3 (data lake), Kinesis (streaming), Glue (ETL), Athena (SQL sobre S3), Redshift (data warehouse).</p>`,
+az:`<p><b class="k">Azure HDInsight</b>: servicio <b>administrado</b> de Microsoft Azure para clusters open source: <b>Hadoop, Spark, Hive, Kafka, HBase</b>.</p><ul>
+<li>Almacena en <b>Azure Blob Storage</b> o <b>Azure Data Lake Storage (Gen2)</b>.</li>
+<li>Integra con Azure Active Directory, monitoreo y seguridad empresarial.</li></ul>
+<p class="mut">Otros de Azure: Azure Databricks (Spark), Synapse Analytics (DW), Event Hubs (ingesta streaming), Stream Analytics.</p>`,
+gcp:`<p><b class="k">Google Cloud Dataproc</b>: servicio <b>administrado</b> de Google Cloud para ejecutar <b>Spark y Hadoop</b>.</p><ul>
+<li>Crea clusters en <b>~90 segundos</b>, cobro <b>por segundo</b>.</li>
+<li>Almacena en <b>Cloud Storage (GCS)</b>; también Dataproc Serverless.</li></ul>
+<p class="mut">Otros de GCP: BigQuery (DW serverless), Dataflow (Apache Beam, batch + streaming), Pub/Sub (mensajería).</p>
+<h2>Equivalencias entre nubes</h2>
+<table><tr><th>Función</th><th>AWS</th><th>Azure</th><th>GCP</th></tr>
+<tr><td>Hadoop/Spark administrado</td><td>EMR</td><td>HDInsight</td><td>Dataproc</td></tr>
+<tr><td>Almacenamiento objetos</td><td>S3</td><td>Blob / ADLS</td><td>Cloud Storage</td></tr>
+<tr><td>Streaming / ingesta</td><td>Kinesis</td><td>Event Hubs</td><td>Pub/Sub</td></tr>
+<tr><td>Data warehouse</td><td>Redshift</td><td>Synapse</td><td>BigQuery</td></tr></table>`
+};
+
+/* Preguntas opción múltiple: o[0] es la correcta */
+const MCQ = [
+{t:"bd",q:"¿Qué es Big Data?",o:["Datos tan grandes, rápidos y variados que las herramientas tradicionales no pueden procesarlos en tiempo razonable","Una base de datos relacional muy grande","Un lenguaje de programación para datos","Un servicio de Google para almacenar fotos"],e:"Big Data se refiere a volúmenes de datos que superan la capacidad de las herramientas tradicionales y requieren procesamiento distribuido."},
+{t:"bd",q:"¿Cómo escala normalmente un sistema Big Data?",o:["Horizontalmente: agregando más nodos","Verticalmente: comprando un servidor más potente","No escala","Solo agregando más disco duro a un PC"],e:"Big Data usa escalado horizontal: muchas máquinas commodity en un cluster."},
+{t:"bd",q:"Un video de YouTube es un dato…",o:["No estructurado","Estructurado","Semiestructurado","Relacional"],e:"Video, audio, imágenes y texto libre son datos no estructurados."},
+{t:"bd",q:"Un archivo JSON es un dato…",o:["Semiestructurado","Estructurado","No estructurado","Binario puro"],e:"JSON, XML y logs tienen cierta organización (etiquetas/claves) pero no un esquema rígido de tabla."},
+{t:"bd",q:"Una tabla de una base de datos SQL contiene datos…",o:["Estructurados","No estructurados","Semiestructurados","Streaming"],e:"Filas y columnas con esquema fijo = estructurados."},
+{t:"v5",q:"¿Cuáles son las 5 V del Big Data?",o:["Volumen, Velocidad, Variedad, Veracidad, Valor","Volumen, Visión, Variedad, Validez, Venta","Velocidad, Virtualización, Valor, Vector, Volumen","Variedad, Versión, Volumen, Vista, Valor"],e:"VoVeVa VeVa: Volumen, Velocidad, Variedad, Veracidad, Valor."},
+{t:"v5",q:"La V que se refiere a la CALIDAD y confiabilidad de los datos es…",o:["Veracidad","Valor","Variedad","Volumen"],e:"Veracidad = qué tan confiables, exactos y limpios son los datos."},
+{t:"v5",q:"La V que se refiere a la RAPIDEZ con que se generan y procesan los datos es…",o:["Velocidad","Volumen","Valor","Veracidad"],e:"Velocidad: datos generados en tiempo real (sensores, redes sociales, transacciones)."},
+{t:"v5",q:"Tener datos en texto, imágenes, JSON y tablas SQL a la vez corresponde a la V de…",o:["Variedad","Volumen","Veracidad","Velocidad"],e:"Variedad = diversidad de tipos y formatos."},
+{t:"v5",q:"La V que mide la utilidad de los datos para el negocio es…",o:["Valor","Veracidad","Variedad","Volumen"],e:"Valor = capacidad de convertir los datos en beneficio o decisiones."},
+{t:"v5",q:"Petabytes de datos almacenados hacen referencia a la V de…",o:["Volumen","Velocidad","Valor","Variedad"],e:"Volumen = cantidad de datos."},
+{t:"v5",q:"Originalmente el Big Data se definía con…",o:["3 V: Volumen, Velocidad, Variedad","2 V: Volumen y Valor","7 V","4 V: incluyendo Visión"],e:"Doug Laney (2001) propuso 3V; luego se agregaron Veracidad y Valor."},
+{t:"lk",q:"¿Cuántos caminos de procesamiento/ingesta tiene la arquitectura Lambda?",o:["Dos: batch y tiempo real (speed)","Uno: solo streaming","Tres caminos de ingesta independientes","Ninguno, solo almacena"],e:"Lambda tiene batch layer + speed layer, unidos por la serving layer."},
+{t:"lk",q:"¿Qué capa ELIMINA la arquitectura Kappa respecto a Lambda?",o:["La capa batch","La capa de streaming","La capa de serving","La capa de almacenamiento"],e:"Kappa quita la parte batch y procesa todo como streaming en tiempo real."},
+{t:"lk",q:"Las 3 capas de Lambda son:",o:["Batch, Speed y Serving","Map, Shuffle y Reduce","Ingesta, Kafka y SQL","Master, Core y Task"],e:"Batch (histórico exacto), Speed (tiempo real), Serving (consulta/unión)."},
+{t:"lk",q:"Principal desventaja de la arquitectura Lambda:",o:["Mantener dos códigos/pipelines distintos (batch y streaming)","No soporta tiempo real","No guarda datos históricos","Solo funciona en Azure"],e:"La duplicación de lógica en dos sistemas aumenta la complejidad."},
+{t:"lk",q:"En Kappa, si necesito reprocesar datos históricos, ¿qué hago?",o:["Vuelvo a leer (replay) el log inmutable, ej. Kafka","Ejecuto la capa batch","Borro los datos","Uso MapReduce obligatoriamente"],e:"Kappa guarda los eventos en un log (Kafka) y reprocesa reproduciendo el stream."},
+{t:"lk",q:"¿Qué herramienta se asocia típicamente al log inmutable de la arquitectura Kappa?",o:["Apache Kafka","Microsoft Excel","MySQL","HDFS NameNode"],e:"Kafka actúa como log distribuido de eventos que se puede re-leer."},
+{t:"lk",q:"Verdadero o falso: Kappa usa un único pipeline de streaming.",o:["Verdadero","Falso"],e:"Kappa = un solo pipeline, todo es stream."},
+{t:"lk",q:"¿Quién propuso la arquitectura Kappa?",o:["Jay Kreps (cocreador de Kafka)","Nathan Marz","Doug Cutting","Matei Zaharia"],e:"Jay Kreps, 2014. Lambda fue de Nathan Marz."},
+{t:"lk",q:"¿Qué capa de Lambda da resultados EXACTOS pero con mayor latencia?",o:["Batch layer","Speed layer","Serving layer","Kafka layer"],e:"La batch layer recalcula sobre todo el histórico: precisa pero lenta."},
+{t:"hs",q:"¿Por qué Spark es más rápido que Hadoop MapReduce?",o:["Procesa en memoria RAM; MapReduce escribe en disco entre pasos","Porque usa más discos duros","Porque solo funciona con datos pequeños","Porque está escrito en Python"],e:"RAM vs disco: Spark mantiene datos intermedios en memoria."},
+{t:"hs",q:"Hadoop MapReduce guarda los resultados intermedios en…",o:["Disco (HDFS)","RAM","La nube obligatoriamente","Caché del navegador"],e:"Cada fase lee y escribe en disco → más lento."},
+{t:"hs",q:"¿Cuánto más rápido puede ser Spark en memoria frente a MapReduce?",o:["Hasta ~100 veces","2 veces","1000 veces","Igual de rápido"],e:"Hasta 100× en memoria y ~10× en disco."},
+{t:"hs",q:"¿Cuál de estos NO es un componente central de Hadoop?",o:["MLlib","HDFS","YARN","MapReduce"],e:"MLlib es la librería de Machine Learning de Spark."},
+{t:"hs",q:"¿Qué hace YARN en Hadoop?",o:["Gestiona los recursos del cluster y programa las tareas","Almacena archivos","Es una base de datos SQL","Hace streaming"],e:"YARN = Yet Another Resource Negotiator, gestor de recursos."},
+{t:"hs",q:"Ventaja de Hadoop MapReduce frente a Spark:",o:["Más barato, usa disco en vez de mucha RAM","Es más rápido","Tiene streaming nativo en tiempo real","Tiene librería de ML integrada"],e:"Disco es más barato que RAM; útil para batch masivo sin prisa."},
+{t:"hs",q:"¿Qué tipos de procesamiento soporta Spark?",o:["Batch, streaming, SQL, Machine Learning y grafos","Solo batch","Solo SQL","Solo almacenamiento"],e:"Spark Core + Spark SQL + Spark Streaming + MLlib + GraphX."},
+{t:"hs",q:"Verdadero o falso: Spark puede ejecutarse sobre YARN y leer datos de HDFS.",o:["Verdadero","Falso"],e:"Spark reemplaza a MapReduce, pero convive con HDFS y YARN."},
+{t:"hs",q:"La estructura de datos básica en memoria de Spark es el…",o:["RDD (Resilient Distributed Dataset)","Bloque HDFS","NameNode","DStream de disco"],e:"RDD: colección distribuida, inmutable y tolerante a fallos en memoria."},
+{t:"hdfs",q:"¿Qué significa HDFS?",o:["Hadoop Distributed File System","High Data File Storage","Hadoop Data Fast Service","Hybrid Distributed File Server"],e:"Sistema de archivos distribuido de Hadoop."},
+{t:"hdfs",q:"¿Por qué HDFS es distribuido?",o:["Divide archivos en bloques y los reparte (replicados) entre varios nodos","Porque se guarda en un solo servidor grande","Porque se distribuye por correo","Porque usa RAM"],e:"Bloques de 128 MB repartidos y replicados en distintos DataNodes."},
+{t:"hdfs",q:"Tamaño de bloque por defecto en HDFS (Hadoop 2+):",o:["128 MB","4 KB","1 GB","64 KB"],e:"128 MB (en Hadoop 1 era 64 MB)."},
+{t:"hdfs",q:"Factor de replicación por defecto en HDFS:",o:["3","1","2","5"],e:"Cada bloque se copia 3 veces en nodos distintos."},
+{t:"hdfs",q:"¿Qué guarda el NameNode?",o:["Los metadatos: qué bloques existen y en qué nodo están","Los datos reales de los archivos","Los resultados del Reduce","Las contraseñas"],e:"El NameNode es el maestro; los DataNodes guardan los datos."},
+{t:"hdfs",q:"¿Qué guardan los DataNodes?",o:["Los bloques de datos reales","Solo metadatos","La configuración de YARN","Nada, solo procesan"],e:"DataNodes = trabajadores que almacenan los bloques."},
+{t:"hdfs",q:"¿Qué es un cluster?",o:["Un conjunto de computadoras (nodos) conectadas que trabajan como un solo sistema","Un tipo de disco duro","Un archivo comprimido","Una tabla SQL"],e:"Varios nodos (maestro + trabajadores) cooperando."},
+{t:"hdfs",q:"Orden correcto de las fases de MapReduce:",o:["Map → Shuffle & Sort → Reduce","Reduce → Map → Shuffle","Shuffle → Map → Reduce","Map → Reduce → Shuffle"],e:"Map genera pares clave-valor, Shuffle los agrupa, Reduce los agrega."},
+{t:"hdfs",q:"En MapReduce, la fase Map produce…",o:["Pares (clave, valor)","Un único número final","Bloques de 128 MB","Un gráfico"],e:"Ej: (hola,1), (mundo,1)."},
+{t:"hdfs",q:"Conteo de palabras de 'hola mundo hola'. ¿Qué produce el Reduce?",o:["(hola,2) (mundo,1)","(hola,1) (mundo,1) (hola,1)","hola:[1,1] mundo:[1]","3"],e:"Map → pares; Shuffle → hola:[1,1]; Reduce → suma → (hola,2)."},
+{t:"hdfs",q:"¿Qué hace la fase Shuffle & Sort?",o:["Agrupa y ordena todos los valores por clave","Borra datos duplicados del disco","Divide el archivo en bloques","Envía datos a la nube"],e:"Junta todos los valores de la misma clave antes del Reduce."},
+{t:"hdfs",q:"¿Cómo procesa Spark Streaming los datos en tiempo real?",o:["Divide el flujo en micro-batches (pequeños lotes)","Guarda todo y procesa al final del día","Solo procesa archivos CSV","No procesa en tiempo real"],e:"DStreams / Structured Streaming trabajan con micro-batches."},
+{t:"hdfs",q:"Fuente de datos típica para Spark Streaming:",o:["Apache Kafka","Microsoft Word","Un PDF","Una impresora"],e:"Kafka, Kinesis, sockets, archivos en carpetas."},
+{t:"hdfs",q:"El principio de acceso de HDFS es…",o:["Write once, read many (escribir una vez, leer muchas)","Escribir y modificar constantemente","Solo lectura sin escritura","Read once, write many"],e:"HDFS está optimizado para escrituras grandes y muchas lecturas secuenciales."},
+{t:"hdfs",q:"'Data locality' en Hadoop significa…",o:["Llevar el cómputo al nodo donde están los datos","Guardar datos en el PC local","Copiar todos los datos a un servidor central","Usar solo datos del país"],e:"Mover código es más barato que mover terabytes por la red."},
+{t:"aws",q:"¿Cuál es el servicio de AWS para Hadoop/Spark administrado?",o:["Amazon EMR","Amazon S3","AWS Lambda","Amazon RDS"],e:"EMR = Elastic MapReduce."},
+{t:"aws",q:"¿Qué significa EMR?",o:["Elastic MapReduce","Enterprise Memory Resource","Elastic Machine Runtime","External MapReduce"],e:"Amazon Elastic MapReduce."},
+{t:"aws",q:"¿Dónde suele almacenar los datos Amazon EMR?",o:["Amazon S3 (o HDFS del cluster)","Google Cloud Storage","Azure Blob","Disquetes"],e:"EMRFS permite usar S3 como almacenamiento."},
+{t:"aws",q:"Tipos de nodos en un cluster EMR:",o:["Master, Core y Task","NameNode, Kafka y Hive","Batch, Speed y Serving","Map, Shuffle y Reduce"],e:"Master coordina, Core procesa + HDFS, Task solo procesa."},
+{t:"aws",q:"Servicio de AWS para streaming de datos en tiempo real:",o:["Amazon Kinesis","Amazon EMR","Amazon Glacier","Amazon Route 53"],e:"Kinesis ≈ Event Hubs (Azure) ≈ Pub/Sub (GCP)."},
+{t:"az",q:"¿Cuál es el servicio de Azure para Hadoop/Spark administrado?",o:["Azure HDInsight","Azure Functions","Azure SQL","Cosmos DB"],e:"HDInsight = clusters open source administrados en Azure."},
+{t:"az",q:"Frameworks que soporta Azure HDInsight:",o:["Hadoop, Spark, Hive, Kafka, HBase","Solo SQL Server","Solo .NET","Solo Excel"],e:"HDInsight ofrece varios tipos de cluster open source."},
+{t:"az",q:"¿Dónde almacena datos HDInsight?",o:["Azure Blob Storage / Azure Data Lake Storage","Amazon S3","Google Cloud Storage","Solo disco local"],e:"Almacenamiento separado del cómputo."},
+{t:"az",q:"Servicio de Azure para ingesta de eventos en streaming:",o:["Azure Event Hubs","Azure HDInsight","Azure DevOps","Azure Boards"],e:"Event Hubs ≈ Kinesis ≈ Pub/Sub."},
+{t:"gcp",q:"¿Cuál es el servicio de GCP para Hadoop/Spark administrado?",o:["Google Cloud Dataproc","BigQuery","Cloud Functions","Firebase"],e:"Dataproc ejecuta Spark y Hadoop administrados."},
+{t:"gcp",q:"Característica destacada de Dataproc:",o:["Clusters en ~90 segundos y cobro por segundo","Solo funciona on-premise","No soporta Spark","Es una base de datos NoSQL"],e:"Rápido de crear y facturación por segundo."},
+{t:"gcp",q:"¿Dónde almacena datos normalmente Dataproc?",o:["Google Cloud Storage","Amazon S3","Azure Blob","OneDrive"],e:"GCS reemplaza a HDFS como almacenamiento persistente."},
+{t:"gcp",q:"Equivalente de Amazon EMR en Google Cloud:",o:["Dataproc","BigQuery","Pub/Sub","Compute Engine"],e:"EMR ↔ HDInsight ↔ Dataproc."},
+{t:"gcp",q:"Equivalente de Amazon EMR en Azure:",o:["HDInsight","Event Hubs","Synapse","Cosmos DB"],e:"EMR ↔ HDInsight ↔ Dataproc."},
+{t:"gcp",q:"Empareja: AWS EMR, Azure ___, GCP ___",o:["HDInsight, Dataproc","Databricks, BigQuery","Synapse, Dataflow","Event Hubs, Pub/Sub"],e:"Los tres son Hadoop/Spark administrado."},
+{t:"gcp",q:"Data warehouse serverless de Google Cloud:",o:["BigQuery","Dataproc","Pub/Sub","Cloud SQL"],e:"BigQuery ≈ Redshift (AWS) ≈ Synapse (Azure)."}
+];
+
+/* Tarjetas tipo pregunta abierta de examen */
+const CARDS = [
+{t:"bd",q:"Define Big Data.",a:"Conjuntos de datos tan grandes, rápidos y variados que las herramientas tradicionales no pueden capturar, almacenar, procesar y analizar en un tiempo razonable; requieren procesamiento distribuido en clusters."},
+{t:"bd",q:"Menciona los 3 tipos de datos con un ejemplo.",a:"Estructurados (tabla SQL), semiestructurados (JSON, XML, logs), no estructurados (video, imágenes, texto libre)."},
+{t:"v5",q:"Explica las 5 V.",a:"<b>Volumen</b>: cantidad. <b>Velocidad</b>: rapidez de generación/proceso. <b>Variedad</b>: tipos/formatos. <b>Veracidad</b>: calidad/confiabilidad. <b>Valor</b>: utilidad para el negocio."},
+{t:"lk",q:"¿Qué es la arquitectura Lambda?",a:"Arquitectura con <b>dos caminos</b>: batch layer (histórico, exacto, lento) + speed layer (tiempo real, rápido) y una serving layer que une resultados. Desventaja: dos códigos que mantener."},
+{t:"lk",q:"¿Qué es la arquitectura Kappa?",a:"Simplifica Lambda <b>quitando la capa batch</b>: todo se procesa como <b>streaming en tiempo real</b> con un solo pipeline. Los datos se guardan en un log inmutable (Kafka) y se reprocesan con replay."},
+{t:"lk",q:"Diferencias entre Lambda y Kappa.",a:"Lambda: batch + streaming (2 pipelines, más complejo, histórico exacto). Kappa: solo streaming (1 pipeline, más simple, reprocesa reproduciendo el log)."},
+{t:"hs",q:"¿Qué es Hadoop?",a:"Framework open source para almacenar y procesar Big Data de forma distribuida en clusters de hardware común. Componentes: HDFS (almacenamiento), YARN (recursos), MapReduce (procesamiento)."},
+{t:"hs",q:"¿Qué es Apache Spark?",a:"Motor de procesamiento distribuido <b>en memoria</b>. Soporta batch, streaming, SQL, ML (MLlib) y grafos (GraphX). Usa RDD/DataFrames, DAG y evaluación perezosa."},
+{t:"hs",q:"¿Por qué Spark es más rápido que Hadoop?",a:"Spark procesa en <b>RAM</b>; Hadoop MapReduce escribe resultados intermedios en <b>disco</b> entre cada fase. RAM es mucho más rápida que disco → hasta 100× más rápido."},
+{t:"hdfs",q:"¿Qué es HDFS?",a:"Hadoop Distributed File System: sistema de archivos distribuido que guarda archivos grandes en un cluster dividiéndolos en bloques replicados."},
+{t:"hdfs",q:"¿Por qué HDFS es distribuido?",a:"Divide los archivos en <b>bloques de 128 MB</b> y los reparte en varios <b>DataNodes</b> con <b>réplica ×3</b>. Así hay tolerancia a fallos, paralelismo y escalabilidad horizontal. El <b>NameNode</b> guarda los metadatos."},
+{t:"hdfs",q:"¿Qué es un cluster?",a:"Conjunto de computadoras (nodos) interconectadas que trabajan juntas como un solo sistema, con un nodo maestro que coordina y nodos trabajadores que almacenan/procesan."},
+{t:"hdfs",q:"Explica MapReduce con un ejemplo.",a:"Modelo de programación: <b>Map</b> genera pares clave-valor, <b>Shuffle</b> agrupa por clave, <b>Reduce</b> agrega. Ej. conteo de palabras: (hola,1)(hola,1) → hola:[1,1] → (hola,2)."},
+{t:"hdfs",q:"¿Qué es Spark Streaming?",a:"Módulo de Spark para procesar datos en <b>tiempo real</b> dividiendo el flujo en <b>micro-batches</b>. Fuentes: Kafka, Kinesis, sockets. Versión moderna: Structured Streaming."},
+{t:"aws",q:"¿Qué es Amazon EMR?",a:"Elastic MapReduce: servicio administrado de AWS para clusters Hadoop/Spark/Hive/HBase/Presto sobre EC2, con datos en S3. Nodos Master, Core, Task. Pago por uso y autoescalado."},
+{t:"az",q:"¿Qué es Azure HDInsight?",a:"Servicio administrado de Azure para clusters open source (Hadoop, Spark, Hive, Kafka, HBase) con almacenamiento en Blob Storage / Data Lake Storage."},
+{t:"gcp",q:"¿Qué es Google Cloud Dataproc?",a:"Servicio administrado de GCP para Spark y Hadoop. Clusters en ~90 s, cobro por segundo, datos en Cloud Storage."},
+{t:"gcp",q:"Equivalencias de Hadoop/Spark administrado en las 3 nubes.",a:"AWS → <b>EMR</b> · Azure → <b>HDInsight</b> · GCP → <b>Dataproc</b>. Almacenamiento: S3 / Blob-ADLS / Cloud Storage."}
+];
+
+/* ================== ESTADO ================== */
+const store = {
+  get(k,d){try{const v=localStorage.getItem("bdq_"+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("bdq_"+k,JSON.stringify(v))}catch(e){}}
+};
+let sel = new Set(store.get("sel", Object.keys(TOPICS)));
+let wrong = new Set(store.get("wrong", []));   // índices MCQ falladas
+let best = store.get("best", 0);
+let S = {};
+const $app = document.getElementById("app");
+const shuffle = a => {a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const save = () => {store.set("sel",[...sel]);store.set("wrong",[...wrong]);store.set("best",best)};
+function vib(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+
+function chipsHTML(){
+  return `<div class="chips">${Object.entries(TOPICS).map(([k,v])=>`<button class="chip ${sel.has(k)?"on":""}" data-chip="${k}">${v.i} ${v.n}</button>`).join("")}</div>
+  <div class="row"><button class="chip" data-all="1">Todos</button><button class="chip" data-all="0">Ninguno</button></div>`;
+}
+function bindChips(rerender){
+  $app.querySelectorAll("[data-chip]").forEach(b=>b.onclick=()=>{const k=b.dataset.chip;sel.has(k)?sel.delete(k):sel.add(k);save();rerender()});
+  $app.querySelectorAll("[data-all]").forEach(b=>b.onclick=()=>{sel=b.dataset.all==="1"?new Set(Object.keys(TOPICS)):new Set();save();rerender()});
+}
+function setNav(v){document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.go===v))}
+
+/* ================== VISTAS ================== */
+function home(){
+  setNav("home");
+  $app.innerHTML = `
+  <div class="top"><h1>🧠 Big Data Quiz</h1><span class="pill">🏆 ${best}</span></div>
+  <p class="mut">Estudia rápido para el examen. Elige un modo:</p>
+  <button class="btn main menu-btn" data-m="quiz10"><span class="ic">🎮</span><span>Partida rápida<small style="color:#e0f2fe">10 preguntas al azar con combos</small></span></button>
+  <button class="btn menu-btn" data-m="quizAll"><span class="ic">🔥</span><span>Maratón<small>Todas las preguntas (${MCQ.filter(q=>sel.has(q.t)).length}) de los temas elegidos</small></span></button>
+  <button class="btn menu-btn" data-m="wrong"><span class="ic">🎯</span><span>Repasar mis errores<small>${wrong.size} pregunta(s) falladas guardadas</small></span></button>
+  <button class="btn menu-btn" data-m="cards"><span class="ic">🃏</span><span>Tarjetas de examen<small>Preguntas abiertas: piensa la respuesta y voltea</small></span></button>
+  <button class="btn menu-btn" data-m="study"><span class="ic">📖</span><span>Resumen por tema<small>Lee la teoría antes de jugar</small></span></button>
+  <div class="card"><h2>Temas activos</h2>${chipsHTML()}</div>`;
+  bindChips(home);
+  $app.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{
+    const m=b.dataset.m;
+    if(m==="quiz10")startQuiz(10);
+    else if(m==="quizAll")startQuiz(999);
+    else if(m==="wrong")startQuiz(999,true);
+    else if(m==="cards")startCards();
+    else study();
+  });
+  scrollTo(0,0);
+}
+
+function study(open){
+  setNav("study");
+  $app.innerHTML = `<h1>📖 Resumen</h1><p class="mut">Toca un tema para abrirlo.</p>` +
+   Object.entries(TOPICS).map(([k,v])=>`<div class="card"><button class="btn" style="margin:0;background:none;padding:4px 0" data-s="${k}">${v.i} ${v.n} ${open===k?"▲":"▼"}</button>${open===k?`<div class="exp" style="border-color:var(--pur);background:none;padding:4px 0 0 10px">${STUDY[k]}</div><button class="btn main" data-qt="${k}">🎮 Practicar este tema</button>`:""}</div>`).join("");
+  $app.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{study(open===b.dataset.s?null:b.dataset.s);const el=$app.querySelector(`[data-s="${b.dataset.s}"]`);el&&el.scrollIntoView({block:"start"})});
+  $app.querySelectorAll("[data-qt]").forEach(b=>b.onclick=()=>{sel=new Set([b.dataset.qt]);save();startQuiz(999)});
+}
+
+function startQuiz(n,onlyWrong){
+  let pool = MCQ.map((q,i)=>({...q,i})).filter(q=>onlyWrong?wrong.has(q.i):sel.has(q.t));
+  if(!pool.length){
+    $app.innerHTML=`<div class="card"><div class="big">${onlyWrong?"🎉":"🤔"}</div><p style="text-align:center">${onlyWrong?"¡No tienes errores guardados!":"Selecciona al menos un tema."}</p><button class="btn main" id="bk">Volver</button></div>`;
+    document.getElementById("bk").onclick=home;return;
+  }
+  // priorizar las falladas
+  pool = shuffle(pool).sort((a,b)=>(wrong.has(b.i)?1:0)-(wrong.has(a.i)?1:0));
+  pool = shuffle(pool.slice(0,Math.min(n,pool.length)));
+  S={pool,k:0,score:0,ok:0,streak:0,maxStreak:0,onlyWrong};
+  renderQ();
+}
+
+function renderQ(){
+  setNav("quiz");
+  const q=S.pool[S.k], opts=shuffle(q.o.map((t,j)=>({t,c:j===0})));
+  S.opts=opts; S.answered=false;
+  $app.innerHTML=`
+  <div class="top"><span class="pill">${S.k+1}/${S.pool.length}</span><span class="pill">⭐ ${S.score}</span><span class="pill combo">🔥 x${S.streak}</span></div>
+  <div class="bar"><div style="width:${S.k/S.pool.length*100}%"></div></div>
+  <div class="card" id="qc"><span class="tag">${TOPICS[q.t].i} ${TOPICS[q.t].n}</span><div class="q">${q.q}</div>
+  ${opts.map((o,j)=>`<button class="btn" data-o="${j}">${String.fromCharCode(65+j)}. ${o.t}</button>`).join("")}
+  <div id="fb"></div></div>
+  <button class="btn" id="quit" style="text-align:center;background:none;color:var(--mut)">Salir</button>`;
+  $app.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>answer(+b.dataset.o));
+  document.getElementById("quit").onclick=finish;
+  scrollTo(0,0);
+}
+
+function answer(j){
+  if(S.answered)return; S.answered=true;
+  const q=S.pool[S.k], good=S.opts[j].c;
+  $app.querySelectorAll("[data-o]").forEach((b,x)=>{
+    if(S.opts[x].c)b.classList.add("ok");else if(x===j)b.classList.add("bad");else b.classList.add("dim");
+  });
+  const qc=document.getElementById("qc");
+  if(good){
+    S.streak++;S.ok++;S.maxStreak=Math.max(S.maxStreak,S.streak);
+    const pts=10*Math.min(S.streak,5);S.score+=pts;
+    wrong.delete(q.i);qc.classList.add("pop");vib(30);
+  }else{
+    S.streak=0;wrong.add(q.i);qc.classList.add("shake");vib([60,40,60]);
+  }
+  save();
+  const msgOK=["¡Correcto!","¡Bien!","¡Crack!","¡Exacto!","¡Eso!"];
+  document.getElementById("fb").innerHTML=`<div class="exp"><b style="color:${good?"var(--ok)":"var(--bad)"}">${good?"✅ "+msgOK[Math.random()*msgOK.length|0]+(S.streak>1?` Combo x${Math.min(S.streak,5)}`:""):"❌ Incorrecto"}</b><br>${q.e}</div>
+  <button class="btn main" id="nx">${S.k+1<S.pool.length?"Siguiente ➜":"Ver resultado"}</button>`;
+  const nx=document.getElementById("nx");nx.onclick=()=>{S.k++;S.k<S.pool.length?renderQ():finish()};
+  nx.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function finish(){
+  const total=S.answered?S.k+1:S.k;
+  const pct=total?Math.round(S.ok/total*100):0;
+  const rec=S.score>best; if(rec){best=S.score;save()}
+  const face=pct>=90?"🏆":pct>=70?"😎":pct>=50?"🙂":"📚";
+  $app.innerHTML=`<div class="card" style="text-align:center"><div class="big">${face}</div>
+  <div class="res">${pct}%</div><p>${S.ok} de ${total} correctas</p>
+  <p>⭐ ${S.score} puntos · 🔥 mejor racha x${S.maxStreak}</p>
+  ${rec?'<p class="combo">¡NUEVO RÉCORD!</p>':""}
+  <p class="mut">${pct>=90?"¡Listo para el examen!":pct>=70?"Muy bien, repasa tus errores.":"Lee el resumen y vuelve a intentarlo."}</p>
+  <button class="btn main" id="again">Jugar otra vez</button>
+  ${wrong.size?`<button class="btn" id="rw" style="text-align:center">🎯 Repasar errores (${wrong.size})</button>`:""}
+  <button class="btn" id="hm" style="text-align:center">🏠 Inicio</button></div>`;
+  document.getElementById("again").onclick=()=>startQuiz(S.pool.length,S.onlyWrong);
+  document.getElementById("hm").onclick=home;
+  const rw=document.getElementById("rw");rw&&(rw.onclick=()=>startQuiz(999,true));
+}
+
+function startCards(){
+  let pool=CARDS.filter(c=>sel.has(c.t));
+  if(!pool.length){home();return}
+  S={cards:shuffle(pool),k:0,know:0,again:[]};
+  renderCard();
+}
+function renderCard(){
+  setNav("cards");
+  const c=S.cards[S.k];
+  $app.innerHTML=`<div class="top"><span class="pill">🃏 ${S.k+1}/${S.cards.length}</span><span class="pill">✅ ${S.know}</span></div>
+  <div class="bar"><div style="width:${S.k/S.cards.length*100}%"></div></div>
+  <div class="card flip" id="fc"><span class="tag" style="align-self:center">${TOPICS[c.t].i} ${TOPICS[c.t].n}</span>
+  <div class="q" style="margin:18px 0">${c.q}</div><div id="ans" class="mut">👆 Piensa tu respuesta y toca para ver</div></div>
+  <div id="act"></div>
+  <button class="btn" id="quit" style="text-align:center;background:none;color:var(--mut)">Salir</button>`;
+  document.getElementById("quit").onclick=home;
+  document.getElementById("fc").onclick=()=>{
+    if(S.shown)return;S.shown=true;
+    document.getElementById("ans").outerHTML=`<div class="ans exp">${c.a}</div>`;
+    document.getElementById("act").innerHTML=`<div class="row"><button class="btn red" id="no">🔁 No la sabía</button><button class="btn grn" id="si">✅ La sabía</button></div>`;
+    document.getElementById("si").onclick=()=>next(true);
+    document.getElementById("no").onclick=()=>next(false);
+  };
+  S.shown=false; scrollTo(0,0);
+  function next(k){
+    if(k){S.know++;vib(30)}else S.cards.push(c); // la repite al final
+    S.k++;
+    if(S.k<S.cards.length)renderCard();
+    else{$app.innerHTML=`<div class="card" style="text-align:center"><div class="big">🎓</div><div class="res">¡Terminaste!</div><p>Dominaste todas las tarjetas.</p><button class="btn main" id="again">Otra vez</button><button class="btn" id="hm" style="text-align:center">🏠 Inicio</button></div>`;
+      document.getElementById("again").onclick=startCards;document.getElementById("hm").onclick=home;}
+  }
+}
+
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{
+  const g=b.dataset.go; if(g==="home")home(); else if(g==="study")study(); else if(g==="quiz")startQuiz(10); else startCards();
+});
+home();
+</script>
+</body>
+</html>
