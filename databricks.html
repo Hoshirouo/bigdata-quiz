@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f172a">
+<title>Práctica Databricks</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--txt:#e2e8f0;--mut:#94a3b8;--acc:#38bdf8;--ok:#22c55e;--bad:#ef4444;--org:#fb923c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:720px;margin:0 auto;padding:16px 16px 60px}
+h1{font-size:1.45rem;margin:.3rem 0}h2{font-size:1.15rem;margin:.2rem 0 .5rem}
+a{color:var(--acc)}
+.mut{color:var(--mut)}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:14px 0}
+.tabs{display:flex;gap:8px;margin:12px 0;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+.tabs button{flex:1;border:0;border-radius:12px;padding:12px 6px;background:var(--card);color:var(--txt);font-weight:700;font-size:.9rem;cursor:pointer}
+.tabs button.on{background:linear-gradient(135deg,#f97316,#ef4444)}
+pre{background:#020617;border:1px solid var(--card2);border-radius:10px;padding:12px;overflow-x:auto;font-size:.85rem;margin:8px 0;white-space:pre}
+code{font-family:ui-monospace,Consolas,monospace}
+p code,li code{background:#020617;padding:1px 5px;border-radius:5px;font-size:.88em;color:#fde68a}
+.step{display:flex;gap:10px;align-items:flex-start}
+.num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--org);color:#1c1917;font-weight:800;display:flex;align-items:center;justify-content:center}
+.sol{display:none;border-left:4px solid var(--ok);padding-left:10px;margin-top:8px}
+.sol.show{display:block;animation:f .25s}
+@keyframes f{from{opacity:0}to{opacity:1}}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;background:var(--card2);color:var(--txt);cursor:pointer;margin-top:6px}
+.btn.big{display:block;width:100%;padding:14px;font-size:1rem;background:linear-gradient(135deg,#f97316,#ef4444);text-align:center;text-decoration:none;color:#fff}
+.opt{display:block;width:100%;text-align:left;border:0;border-radius:10px;padding:12px;margin:7px 0;background:var(--card2);color:var(--txt);font-size:.95rem;cursor:pointer}
+.opt.ok{background:var(--ok);color:#052e16}.opt.bad{background:var(--bad)}
+.warn{border-left:4px solid #f59e0b;background:#2a1f05;padding:10px;border-radius:8px;margin:8px 0}
+table{width:100%;border-collapse:collapse;font-size:.88rem}td,th{border-bottom:1px solid var(--card2);padding:6px 4px;text-align:left}th{color:var(--acc)}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="./">← Volver al Quiz Big Data</a>
+<h1>🧱 Práctica Databricks</h1>
+<p class="mut">Mismo tipo de ejercicio que el simulacro (persona.data), pero con otros datos para practicar.</p>
+
+<div class="tabs">
+  <button data-tab="ej" class="on">📝 Ejercicio</button>
+  <button data-tab="ref">📘 Simulacro resuelto</button>
+  <button data-tab="qz">🎮 Mini quiz</button>
+</div>
+
+<!-- ============ EJERCICIO NUEVO ============ -->
+<section id="ej">
+<div class="card">
+<h2>Enunciado</h2>
+<p><b>En el Catalog de Databricks realiza:</b></p>
+<ol>
+<li>Crear el esquema <b>practica</b></li>
+<li>Crear el volumen <b>unidad_v</b></li>
+<li>Crear un directorio llamado <b>datos</b></li>
+<li>Subir el archivo <b>ventas.data</b> en el directorio <b>datos</b></li>
+</ol>
+<p><b>En un notebook:</b></p>
+<ol start="5">
+<li>Mostrar el contenido del archivo (usa <code>%fs head</code>)</li>
+<li>Crear un DataFrame de Spark con <code>read.csv</code> llamado <b>dfVentas</b></li>
+<li>Mostrar el resultado con <code>display()</code></li>
+<li>Crear una visualización y explicar su uso</li>
+<li>Crear la tabla <b>tb_ventas</b> en el esquema <b>practica</b></li>
+<li>Consultar <b>tb_ventas</b> con una función de agrupamiento (count, sum, avg…)</li>
+</ol>
+<a class="btn big" href="ventas.data" download>⬇️ Descargar ventas.data</a>
+<div class="warn">⚠️ Ojo: este archivo usa <b>punto y coma ( ; )</b> como separador, no la barra <b>|</b> del simulacro. Columnas:<br><code>ID_VENTA;PRODUCTO;CATEGORIA;PRECIO;CANTIDAD;FECHA_VENTA;CIUDAD;ID_VENDEDOR</code></div>
+<p class="mut">Intenta cada paso y luego toca "Ver solución".</p>
+</div>
+
+<div class="card"><div class="step"><div class="num">1</div><div><b>Crear el esquema practica</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><p><b>Con la interfaz:</b> menú izquierdo <b>Catalog</b> → <b>workspace</b> → botón <b>Create</b> → <b>Create schema</b> → nombre <code>practica</code> → Create.</p>
+<p><b>O con SQL</b> en una celda:</p><pre><code>%sql
+CREATE SCHEMA IF NOT EXISTS workspace.practica;</code></pre></div></div></div></div>
+
+<div class="card"><div class="step"><div class="num">2</div><div><b>Crear el volumen unidad_v</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><p><b>Interfaz:</b> Catalog → workspace → <b>practica</b> → <b>Create</b> → <b>Volume</b> → nombre <code>unidad_v</code> → tipo <b>Managed</b> → Create.</p>
+<pre><code>%sql
+CREATE VOLUME IF NOT EXISTS workspace.practica.unidad_v;</code></pre>
+<p class="mut">Un <b>volumen</b> es el espacio del Unity Catalog para guardar archivos (no tablas): CSV, imágenes, .data, etc.</p></div></div></div></div>
+
+<div class="card"><div class="step"><div class="num">3</div><div><b>Crear el directorio datos</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><p><b>Interfaz:</b> abre el volumen <b>unidad_v</b> → botón <b>Create directory</b> → <code>datos</code>.</p>
+<pre><code>dbutils.fs.mkdirs("/Volumes/workspace/practica/unidad_v/datos")</code></pre></div></div></div></div>
+
+<div class="card"><div class="step"><div class="num">4</div><div><b>Subir ventas.data a datos</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><p>Entra a la carpeta <b>datos</b> → <b>Upload to this volume</b> → arrastra <code>ventas.data</code> → Upload.</p>
+<p>La ruta final queda:</p><pre><code>/Volumes/workspace/practica/unidad_v/datos/ventas.data</code></pre>
+<p class="mut">Formato de ruta: <code>/Volumes/&lt;catálogo&gt;/&lt;esquema&gt;/&lt;volumen&gt;/&lt;carpeta&gt;/&lt;archivo&gt;</code></p>
+<p>📸 Evidencia: captura del árbol del Catalog mostrando practica → unidad_v → datos → ventas.data.</p></div></div></div></div>
+
+<div class="card"><div class="step"><div class="num">5</div><div><b>Mostrar el contenido con %fs head</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><pre><code>%fs head /Volumes/workspace/practica/unidad_v/datos/ventas.data</code></pre>
+<p class="mut"><code>%fs head</code> muestra los primeros bytes del archivo en texto plano. Sirve para ver cómo viene el archivo (si tiene encabezado y qué separador usa) <b>antes</b> de leerlo con Spark.</p></div></div></div></div>
+
+<div class="card"><div class="step"><div class="num">6</div><div><b>Crear el DataFrame dfVentas con read.csv</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><pre><code>dfVentas = spark.read.csv(
+    "/Volumes/workspace/practica/unidad_v/datos/ventas.data",
+    header=True,
+    inferSchema=True,
+    sep=";"
+)</code></pre>
+<table><tr><th>Parámetro</th><th>Para qué</th></tr>
+<tr><td><code>header=True</code></td><td>La 1ª fila son los nombres de columnas</td></tr>
+<tr><td><code>inferSchema=True</code></td><td>Detecta tipos (int, double, date) en vez de todo string</td></tr>
+<tr><td><code>sep=";"</code></td><td>Separador del archivo (en el simulacro era <code>"|"</code>)</td></tr></table>
+<p class="mut">Esquema esperado: ID_VENTA int, PRODUCTO string, CATEGORIA string, PRECIO double, CANTIDAD int, FECHA_VENTA date, CIUDAD string, ID_VENDEDOR int.</p></div></div></div></div>
+
+<div class="card"><div class="step"><div class="num">7</div><div><b>Mostrar con display()</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><pre><code>display(dfVentas)</code></pre>
+<p class="mut"><code>display()</code> muestra el DataFrame como tabla interactiva (ordenar, filtrar, descargar y crear gráficos). <code>dfVentas.show()</code> también funciona, pero solo imprime texto.</p></div></div></div></div>
+
+<div class="card"><div class="step"><div class="num">8</div><div><b>Crear una visualización y explicar su uso</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><p>En la salida de <code>display(dfVentas)</code>: botón <b>＋</b> → <b>Visualization</b> → tipo <b>Bar</b>.</p>
+<ul><li><b>Eje X:</b> <code>CATEGORIA</code></li>
+<li><b>Eje Y:</b> <code>CANTIDAD</code> con agregación <b>Sum</b></li>
+<li>Nombre: <i>Unidades vendidas por categoría</i> → Save.</li></ul>
+<p><b>Explicación para el Word:</b> "Esta visualización se usa para comparar el total de unidades vendidas por categoría de producto; permite identificar rápidamente qué categoría tiene mayor demanda."</p>
+<p class="mut">Otras opciones válidas: promedio de PRECIO por CIUDAD (Bar, Avg), ventas por FECHA_VENTA (Line), proporción por CATEGORIA (Pie, Count).</p></div></div></div></div>
+
+<div class="card"><div class="step"><div class="num">9</div><div><b>Crear la tabla tb_ventas en el esquema practica</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><pre><code>dfVentas.write.mode("overwrite").saveAsTable("workspace.practica.tb_ventas")</code></pre>
+<p class="mut"><code>saveAsTable</code> guarda el DataFrame como tabla <b>Delta</b> administrada en el catálogo. <code>mode("overwrite")</code> evita error si ya existe. Verifica en Catalog → practica → Tables → tb_ventas.</p>
+<p>Alternativa en SQL:</p><pre><code>dfVentas.createOrReplaceTempView("v_ventas")</code></pre><pre><code>%sql
+CREATE TABLE workspace.practica.tb_ventas AS
+SELECT * FROM v_ventas;</code></pre></div></div></div></div>
+
+<div class="card"><div class="step"><div class="num">10</div><div><b>Consulta con función de agrupamiento</b>
+<br><button class="btn" data-sol>Ver solución</button>
+<div class="sol"><pre><code>%sql
+USE workspace.practica;
+
+SELECT CATEGORIA,
+       COUNT(ID_VENTA)              AS total_ventas,
+       SUM(CANTIDAD)                AS unidades,
+       ROUND(SUM(PRECIO*CANTIDAD),2) AS monto_total,
+       ROUND(AVG(PRECIO),2)          AS precio_promedio
+FROM tb_ventas
+GROUP BY CATEGORIA
+ORDER BY monto_total DESC;</code></pre>
+<p>Otras consultas cortas que también cumplen:</p>
+<pre><code>%sql
+SELECT CIUDAD, COUNT(*) AS total_ventas
+FROM workspace.practica.tb_ventas
+GROUP BY CIUDAD ORDER BY total_ventas DESC;</code></pre>
+<pre><code>%sql
+SELECT ID_VENDEDOR, SUM(PRECIO*CANTIDAD) AS vendido
+FROM workspace.practica.tb_ventas
+GROUP BY ID_VENDEDOR ORDER BY vendido DESC;</code></pre>
+<p class="mut">Regla: toda columna del SELECT que no esté dentro de COUNT/SUM/AVG/MAX/MIN debe ir en el <b>GROUP BY</b>.</p></div></div></div></div>
+
+<div class="card"><h2>📄 Evidencias para el Word</h2>
+<ol><li>Captura del Catalog: esquema → volumen → carpeta → archivo.</li>
+<li>Celda <code>%fs head</code> con su salida.</li>
+<li>Celda <code>read.csv</code> mostrando el esquema del DataFrame.</li>
+<li><code>display()</code> con la tabla.</li>
+<li>Gráfico + 1 línea explicando su uso.</li>
+<li>Celda <code>saveAsTable</code> + tabla visible en el Catalog.</li>
+<li>Consulta GROUP BY con su resultado.</li></ol></div>
+</section>
+
+<!-- ============ SIMULACRO RESUELTO ============ -->
+<section id="ref" class="hide">
+<div class="card"><h2>Simulacro: persona.data</h2>
+<p class="mut">Esquema <b>simulacro</b>, volumen <b>unidad_h</b>, carpeta <b>archivos</b>, separador <b>|</b>.</p>
+<pre><code>%sql
+CREATE SCHEMA IF NOT EXISTS workspace.simulacro;
+CREATE VOLUME IF NOT EXISTS workspace.simulacro.unidad_h;</code></pre>
+<pre><code>dbutils.fs.mkdirs("/Volumes/workspace/simulacro/unidad_h/archivos")</code></pre>
+<p class="mut">(Subir persona.data con "Upload to this volume".)</p>
+<pre><code>%fs head /Volumes/workspace/simulacro/unidad_h/archivos/persona.data</code></pre>
+<pre><code>dfPersona = spark.read.csv("/Volumes/workspace/simulacro/unidad_h/archivos/persona.data",
+                           header=True, inferSchema=True, sep="|")</code></pre>
+<pre><code>display(dfPersona)</code></pre>
+<p><b>Visualización:</b> Bar · X = <code>ID_EMPRESA</code> · Y = <code>SALARIO</code> (Average).<br>"Se usa para ver el salario promedio de los empleados por empresa."</p>
+<pre><code>dfPersona.write.mode("overwrite").saveAsTable("workspace.simulacro.tb_personas")</code></pre>
+<pre><code>%sql
+USE simulacro;
+SELECT ID_EMPRESA, COUNT(ID) AS total_Empleados
+FROM tb_personas
+GROUP BY ID_EMPRESA
+ORDER BY ID_EMPRESA ASC;</code></pre>
+</div>
+<div class="card"><h2>🔁 Plantilla para cualquier variante</h2>
+<p>Si en el examen cambian nombres, solo reemplaza las partes en <code>&lt;…&gt;</code>:</p>
+<pre><code>%sql
+CREATE SCHEMA IF NOT EXISTS workspace.&lt;esquema&gt;;
+CREATE VOLUME IF NOT EXISTS workspace.&lt;esquema&gt;.&lt;volumen&gt;;</code></pre>
+<pre><code>dbutils.fs.mkdirs("/Volumes/workspace/&lt;esquema&gt;/&lt;volumen&gt;/&lt;carpeta&gt;")</code></pre>
+<pre><code>%fs head /Volumes/workspace/&lt;esquema&gt;/&lt;volumen&gt;/&lt;carpeta&gt;/&lt;archivo&gt;</code></pre>
+<pre><code>df&lt;Nombre&gt; = spark.read.csv("/Volumes/workspace/&lt;esquema&gt;/&lt;volumen&gt;/&lt;carpeta&gt;/&lt;archivo&gt;",
+                           header=True, inferSchema=True, sep="&lt;separador&gt;")
+display(df&lt;Nombre&gt;)
+df&lt;Nombre&gt;.write.mode("overwrite").saveAsTable("workspace.&lt;esquema&gt;.&lt;tabla&gt;")</code></pre>
+<pre><code>%sql
+SELECT &lt;columna&gt;, COUNT(*) AS total
+FROM workspace.&lt;esquema&gt;.&lt;tabla&gt;
+GROUP BY &lt;columna&gt;;</code></pre>
+<div class="warn">Primero mira la salida de <code>%fs head</code> para saber el separador: <code>|</code>, <code>;</code>, <code>,</code> o tabulación <code>\t</code>.</div>
+</div>
+</section>
+
+<!-- ============ MINI QUIZ ============ -->
+<section id="qz" class="hide"><div id="quiz"></div></section>
+</div>
+
+<script>
+document.querySelectorAll("[data-sol]").forEach(b=>b.onclick=()=>{
+  const s=b.nextElementSibling;s.classList.toggle("show");
+  b.textContent=s.classList.contains("show")?"Ocultar solución":"Ver solución";
+});
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on",x===b));
+  ["ej","ref","qz"].forEach(id=>document.getElementById(id).classList.toggle("hide",id!==b.dataset.tab));
+  if(b.dataset.tab==="qz")startQ();
+});
+
+const Q=[
+{q:"¿Qué comando muestra las primeras líneas de un archivo en un volumen?",o:["%fs head /Volumes/...","%sql head archivo","display(archivo)","dbutils.read.head()"],e:"%fs head muestra el contenido inicial del archivo en texto."},
+{q:"Ruta correcta de un archivo en un volumen de Unity Catalog:",o:["/Volumes/workspace/practica/unidad_v/datos/ventas.data","/dbfs/practica/ventas.data","C:/Volumes/practica/ventas.data","workspace.practica.unidad_v.ventas"],e:"/Volumes/<catálogo>/<esquema>/<volumen>/<carpeta>/<archivo>"},
+{q:"El archivo trae 'ID;PRODUCTO;PRECIO'. ¿Qué parámetro necesitas en read.csv?",o:['sep=";"','sep="|"','header=False','inferSchema=False'],e:"El separador debe coincidir con el del archivo."},
+{q:"¿Para qué sirve header=True?",o:["Usar la primera fila como nombres de columnas","Detectar tipos de datos","Ocultar la cabecera","Ordenar por la primera columna"],e:"Sin header, las columnas se llamarían _c0, _c1…"},
+{q:"¿Para qué sirve inferSchema=True?",o:["Detectar automáticamente los tipos de datos (int, date…)","Leer la cabecera","Crear la tabla","Comprimir el archivo"],e:"Sin inferSchema todo se lee como string."},
+{q:"¿Cómo guardas dfVentas como tabla tb_ventas en el esquema practica?",o:['dfVentas.write.mode("overwrite").saveAsTable("workspace.practica.tb_ventas")','display(dfVentas, "tb_ventas")','%fs save tb_ventas','spark.read.table("tb_ventas")'],e:"saveAsTable crea una tabla Delta administrada."},
+{q:"¿Dónde se crea una visualización en Databricks?",o:["En la salida de display(), botón ＋ → Visualization","En el menú Catalog → Volume","Con %fs chart","Solo exportando a Excel"],e:"display() permite agregar gráficos de barra, línea, pie, etc."},
+{q:"¿Qué consulta es correcta?",o:["SELECT CIUDAD, COUNT(*) FROM tb_ventas GROUP BY CIUDAD","SELECT CIUDAD, COUNT(*) FROM tb_ventas","SELECT COUNT(*) GROUP BY CIUDAD FROM tb_ventas","SELECT CIUDAD FROM tb_ventas COUNT(*)"],e:"Toda columna no agregada debe ir en GROUP BY, después del FROM."},
+{q:"¿Qué guarda un VOLUMEN en Unity Catalog?",o:["Archivos (CSV, .data, imágenes…)","Solo tablas Delta","Solo notebooks","Usuarios y permisos"],e:"Las tablas van en el esquema; los archivos en volúmenes."},
+{q:"Jerarquía correcta de Unity Catalog:",o:["Catálogo → Esquema → Tabla/Volumen","Volumen → Catálogo → Esquema","Esquema → Catálogo → Tabla","Tabla → Esquema → Catálogo"],e:"Ej: workspace → practica → tb_ventas / unidad_v."},
+{q:"¿Qué comando crea un directorio dentro del volumen desde Python?",o:['dbutils.fs.mkdirs("/Volumes/.../datos")','%sql CREATE FOLDER datos','os.mkdir("datos")','spark.mkdir("datos")'],e:"dbutils.fs.mkdirs crea carpetas en rutas de volumen."},
+{q:"¿Qué función usarías para el monto total vendido por categoría?",o:["SUM(PRECIO*CANTIDAD) con GROUP BY CATEGORIA","COUNT(PRECIO)","AVG(ID_VENTA)","MAX(CATEGORIA)"],e:"SUM suma el importe de cada venta agrupado por categoría."}
+];
+let k,sc,order;
+const sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function startQ(){k=0;sc=0;order=sh(Q);showQ()}
+function showQ(){
+  const el=document.getElementById("quiz");
+  if(k>=order.length){el.innerHTML=`<div class="card" style="text-align:center"><h2>${sc}/${order.length} correctas</h2><p>${sc>=10?"🏆 ¡Listo!":"📚 Repasa las soluciones y vuelve a intentar"}</p><button class="btn big" id="rq">Otra vez</button></div>`;document.getElementById("rq").onclick=startQ;return}
+  const q=order[k],ops=sh(q.o.map((t,i)=>({t,c:i===0})));
+  el.innerHTML=`<div class="card"><p class="mut">${k+1}/${order.length} · ✅ ${sc}</p><h2>${q.q}</h2>${ops.map((o,i)=>`<button class="opt" data-i="${i}"><code>${o.t.replace(/</g,"&lt;")}</code></button>`).join("")}<div id="fb"></div></div>`;
+  el.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(el.querySelector(".ok"))return;
+    const i=+b.dataset.i;
+    el.querySelectorAll(".opt").forEach((x,j)=>{if(ops[j].c)x.classList.add("ok");else if(j===i)x.classList.add("bad")});
+    if(ops[i].c)sc++;
+    document.getElementById("fb").innerHTML=`<p>${ops[i].c?"✅":"❌"} ${q.e}</p><button class="btn big" id="nx">Siguiente ➜</button>`;
+    document.getElementById("nx").onclick=()=>{k++;showQ()};
+  });
+}
+</script>
+</body>
+</html>

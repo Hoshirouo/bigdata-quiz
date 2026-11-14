@@ -275,6 +275,7 @@ function home(){
   <button class="btn menu-btn" data-m="wrong"><span class="ic">🎯</span><span>Repasar mis errores<small>${wrong.size} pregunta(s) falladas guardadas</small></span></button>
   <button class="btn menu-btn" data-m="cards"><span class="ic">🃏</span><span>Tarjetas de examen<small>Preguntas abiertas: piensa la respuesta y voltea</small></span></button>
   <button class="btn menu-btn" data-m="study"><span class="ic">📖</span><span>Resumen por tema<small>Lee la teoría antes de jugar</small></span></button>
+  <a class="btn menu-btn" href="databricks.html" style="text-decoration:none;background:linear-gradient(135deg,#f97316,#ef4444)"><span class="ic">🧱</span><span>Práctica Databricks<small style="color:#ffedd5">Ejercicio tipo simulacro con solución paso a paso</small></span></a>
   <div class="card"><h2>Temas activos</h2>${chipsHTML()}</div>`;
   bindChips(home);
   $app.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{
